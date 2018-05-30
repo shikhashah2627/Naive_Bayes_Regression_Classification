@@ -54,7 +54,33 @@ std_dev_train_not_spam[std_dev_train_not_spam == 0] = default_standard_deviation
 
 #3rd Part - Gaussian Equation Implementation
 def gauss_value(x,mean,std_deviation):
-    return (1/np.sqrt(2*np.pi*std_deviation)*np.exp(-0.5*((x - mean)/std_deviation)**2))
+    step_1 = x - mean
+    print "step_1" 
+    print step_1
+    step_2 = (step_1 / std_deviation)**2
+    step_2 = (float)((-0.5*step_2))
+    print "step_2"
+    print step_2
+    step_3 = np.exp(step_2)
+    print "step_3"
+    step_3 = (float)(round(step_3,2))
+
+    if (step_3 == 0.00):
+        step_3 = 0.01
+    else:
+        step_3 = round(step_3,2)  
+    print step_3
+    step_4 = (1/np.sqrt(2*np.pi*std_deviation)) 
+    print "step_4"
+    print step_4      
+    step_5 = (float)(round((step_4*step_3),2))
+    print "step_5"
+    print step_5
+    if (step_5 == 0):
+        step_5 = 0.001
+    else:
+        step_5 = step_5    
+    return step_5
 
 class_1 = []
 class_0 = []
