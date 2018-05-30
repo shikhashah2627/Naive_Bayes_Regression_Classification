@@ -15,7 +15,7 @@ X, target = input_data[:,:-1], input_data[:,-1]
 
 # Split the data into a training and test set.
 # Each of these should have about 2,300 instances i.e., 50% of given data set
-train_input, test_input, train_target, test_target = train_test_split(X, target, test_size=0.50, random_state=42)
+train_input, test_input, train_target, test_target = train_test_split(X, target, test_size=0.50, random_state=0)
 
 #2nd part -- Create Probablistic Model
 # for train input caclulating no. of spam mails
@@ -30,7 +30,7 @@ for i in range(len(test_target)):
 probablity_train_spam = train_spam_count / len(train_target)
 probablity_test_spam = test_spam_count / len(test_target)
 #not spam calculation
-probablity_train_not_spam = 1 - probablity_train_spam 
+probablity_train_not_spam = 1 - probablity_train_spam
 probablity_test_not_spam = 1 - probablity_test_spam
 
 #dividing the feature into spam and not spam
@@ -44,31 +44,60 @@ for each_feature in range(train_input.shape[1]):
         else:
             feature_not_spam.append(train_input[each_feature_row][each_feature])
     mean_train_spam.append(np.mean(feature_spam))
-    mean_train_not_spam.append(np.mean(feature_not_spam)) 
-    std_dev_train_spam.append(np.std(mean_train_spam)) 
+    mean_train_not_spam.append(np.mean(feature_not_spam))
+    std_dev_train_spam.append(np.std(mean_train_spam))
     std_dev_train_not_spam.append(np.std(mean_train_not_spam))
 
 #keeping default value as 0.001 if any value is 0
-std_dev_train_spam[std_dev_train_spam == 0] = default_standard_deviation   
-std_dev_train_not_spam[std_dev_train_not_spam == 0] = default_standard_deviation    
+std_dev_train_spam[std_dev_train_spam == 0] = default_standard_deviation
+std_dev_train_not_spam[std_dev_train_not_spam == 0] = default_standard_deviation
 
-#3rd Part - Gaussian Equation Implementation 
+#3rd Part - Gaussian Equation Implementation
 def gauss_value(x,mean,std_deviation):
-    if (mean == 0.00 or std_deviation == 0.00):
-        print "Eroor"
-    else:
-        return (1/np.sqrt(2*np.pi*std_deviation)*np.exp(-0.5*((x - mean)/std_deviation)**2))
+    return (1/np.sqrt(2*np.pi*std_deviation)*np.exp(-0.5*((x - mean)/std_deviation)**2))
 
 class_1 = []
 class_0 = []
-for each_row in range(len(test_input)-1):
+class_x = 0
+result = [] #to store test output predicted values
+
+for each_row in range(len(test_input)):
     class_1 = np.log(probablity_train_spam)
     #class_0 = np.log(probablity_train_not_spam)
     for each_feature in range(train_input.shape[1]):
         x = test_input[each_row][each_feature]
+        #half_sum = (((x - mean_train_spam[each_feature])**2)/(2*std_dev_train_spam[each_feature]**2))
         class_1 += np.log(gauss_value(x,mean_train_spam[each_feature],std_dev_train_spam[each_feature]))
-        #class_0 += np.log(gauss_value(x,mean_train_not_spam[each_feature],std_dev_train_not_spam[each_feature]))
-        print class_1
+        class_0 += np.log(gauss_value(x,mean_train_not_spam[each_feature],std_dev_train_not_spam[each_feature]))
+    class_x = np.argmax([class_0, class_1])
+    result.append(class_x)
 
 
+#print(len(result)) #2301
 
+#Compute a confusion matrix for the test set
+print("\n ")
+cfm = confusion_matrix(test_target, result)
+print("\nConfusion Matrix: \n\n", cfm)
+print("\n")
+
+#Calculating accuracy, precision, and recall on the test set
+#TP = True Positive, TN = True Negative, FP = False Positive, FN = Flase Negative
+TP,TN,FP,FN = 0,0,0,0
+
+for row in range(len(result)):
+	if (result[row] == 1 and test_target[row] == 1):
+		TP += 1
+	elif (result[row] == 0 and test_target[row] == 0 ):
+		TN += 1
+	elif (result[row] == 1 and test_target[row] == 0 ):
+		FP += 1
+	else:     # (result[row] == 0 and test_target[row] == 1 ):
+		FN += 1
+
+accuracy = float(TP + TN)/(TP+TN+FP+FN)
+#precision = float(TP)/(TP+FP)
+#recall = float(TP)/(TP+FN)
+print ("Accuracy : ", accuracy)
+#print ("Precision: ", precision)
+#print ("Recall   : ", recall)
