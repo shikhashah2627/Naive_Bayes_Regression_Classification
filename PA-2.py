@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
-
 train_spam_count = test_spam_count = probablity_train_spam = probablity_train_spam = \
 probablity_train_not_spam = probablity_test_not_spam = 0.00
 
@@ -15,7 +14,7 @@ X, target = input_data[:,:-1], input_data[:,-1]
 
 # Split the data into a training and test set.
 # Each of these should have about 2,300 instances i.e., 50% of given data set
-train_input, test_input, train_target, test_target = train_test_split(X, target, test_size=0.50, random_state=47)
+train_input, test_input, train_target, test_target = train_test_split(X, target, test_size=0.50, random_state=45)
 
 #2nd part -- Create Probablistic Model
 # for train input caclulating no. of spam mails
@@ -27,8 +26,8 @@ for i in range(len(test_target)):
     if (test_target[i] == 1):
         test_spam_count += 1
 #calculate the probablity of spam mails:
-probablity_train_spam = train_spam_count / len(train_target)
-probablity_test_spam = test_spam_count / len(test_target)
+probablity_train_spam = (train_spam_count*1.0) / len(train_target)
+probablity_test_spam = (test_spam_count*1.0) / len(test_target)
 #not spam calculation
 probablity_train_not_spam = 1 - probablity_train_spam
 probablity_test_not_spam = 1 - probablity_test_spam
@@ -50,34 +49,30 @@ for each_feature in range(0,57):
     std_dev_train_not_spam.append(np.std(mean_train_not_spam))
 
 #keeping default value as 0.001 if any value is 0
-#std_dev_train_spam[std_dev_train_spam == 0] = default_standard_deviation
-#std_dev_train_not_spam[std_dev_train_not_spam == 0] = default_standard_deviation
-#3rd Part - Gaussian Equation Implementation
-def gauss_value(x,mean,std_deviation):
-    if (std_deviation == 0.0):
-        std_deviation = 0.0001
-    else:
-        std_deviation = std_deviation
 
-    step_1 = float(1/(np.sqrt(2*3.14)*std_deviation))
+std_dev_train_spam[std_dev_train_spam == 0] = default_standard_deviation
+std_dev_train_not_spam[std_dev_train_not_spam == 0] = default_standard_deviation
+
+#3rd Part - Gaussian Equation Implementation
+
+def gauss_value(x,mean,std_deviation):
+    step_1 = 1.0/float(np.sqrt(2*np.pi)*std_deviation)
     if (step_1 == 0.0):
         step_1 = 0.0001
     else:
         step_1 = step_1
-
     step_2 = step_1 * float(np.exp(-((x-mean)**2)/(2*float(std_deviation*std_deviation))))
 
     if (step_2 == 0.0):
         step_2 = 0.0001
     return step_2
-
 class_x = 0
 result = [] #to store test output predicted values
 
 for each_row in range(len(test_input)):
     class_1 = np.log(probablity_train_spam)
     class_0 = np.log(probablity_train_not_spam)
-    for each_feature in range(0,57):
+    for each_feature in range(test_input.shape[1]):
         x = test_input[each_row][each_feature]
         class_1 += np.log(gauss_value(x,mean_train_spam[each_feature],std_dev_train_spam[each_feature]))
         class_0 += np.log(gauss_value(x,mean_train_not_spam[each_feature],std_dev_train_not_spam[each_feature]))
@@ -102,7 +97,7 @@ for row in range(len(result)):
 		TN += 1
 	elif (result[row] == 1 and test_target[row] == 0 ):
 		FP += 1
-	else:     # (result[row] == 0 and test_target[row] == 1 ):
+	else:
 		FN += 1
 
 accuracy = float(TP + TN)/(TP+TN+FP+FN)
