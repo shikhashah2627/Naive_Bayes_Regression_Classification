@@ -48,11 +48,6 @@ for each_feature in range(train_input.shape[1]):
     std_dev_train_spam.append(np.std(feature_spam))
     std_dev_train_not_spam.append(np.std(feature_not_spam))
 
-#keeping default value as 0.001 if any value is 0
-'''default_standard_deviation
-std_dev_train_spam[std_dev_train_spam == 0] = default_standard_deviation
-std_dev_train_not_spam[std_dev_train_not_spam == 0] = default_standard_deviation
-'''
 #3rd Part - Gaussian Equation Implementation
 
 def gauss_value(x,mean,std_deviation):
@@ -100,8 +95,8 @@ for row in range(len(result)):
 		FN += 1
 
 accuracy = float(TP + TN)/(TP+TN+FP+FN)
-print ("Accuracy : ", accuracy)
+print ("Accuracy : %.2f" % accuracy)
 precision = float(TP)/(TP+FP)
 recall = float(TP)/(TP+FN)
-print ("Precision: ", precision)
-print ("Recall   : ", recall)
+print ("Precision: %.2f" % precision)
+print ("Recall   : %.2f" % recall)
